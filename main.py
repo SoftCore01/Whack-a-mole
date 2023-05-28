@@ -1,6 +1,6 @@
 
 
-
+import json
 import pygame,sys
 from colors import *
 from hole import Hole
@@ -50,6 +50,7 @@ class Whack_a_mole:
         # Game state variables
         self.play = False
         self.paused = False
+        self.end = False
 
         # Game buttons
         self.start_img = pygame.image.load('wackamole\\menu screen images\\start_btn.png')
@@ -135,7 +136,7 @@ class Whack_a_mole:
             self.play = True
             self.paused = False
             self.stats.score = 0
-            self.setting.game_time = 120
+            self.setting.game_time = self.setting.initial_game_time+1
         
 
     def _check_quit_button(self,mousepos):
@@ -155,8 +156,9 @@ class Whack_a_mole:
         if self.setting.game_time == 0:
             pygame.mouse.set_visible(True)
             self.mole_group.empty()
-            self.paused = True
+            self.paused = True 
             self.play = False
+            self.end = True
             
 
 
@@ -165,6 +167,8 @@ class Whack_a_mole:
         self.mins,self.secs = divmod(self.setting.game_time,60)
         self.text = "{:02d}:{:02d}".format(self.mins,self.secs) if self.setting.game_time > 0 else 'Game Over'
         if self.setting.game_time == 0:
+            with open(self.stats.hs_file,'w') as f:
+                json.dump(self.stats.high_score,f)
             pass
 
         
@@ -200,7 +204,7 @@ class Whack_a_mole:
         self.mole.time = pygame.time.get_ticks()
 
     def game_restart(self):
-        self.setting.game_time = 120
+        self.setting.game_time = self.setting.initial_game_time+1
         self.stats.reset_stat()
 
 
@@ -235,7 +239,11 @@ class Whack_a_mole:
             self.start_button.draw()
             self.exit_button.draw()
 
-        if self.paused:
+        if self.end and self.paused:
+            self.restart_button.draw()
+            self.quit_button.draw()
+
+        if self.paused and not self.end :
             self.resume_button.draw()
             self.restart_button.draw()
             self.quit_button.draw()

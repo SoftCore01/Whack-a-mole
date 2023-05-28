@@ -18,4 +18,5 @@ class Settings:
         self.mole_delay = 3
         self.mole_point = 10
 
-        self.game_time = 120
+        self.initial_game_time = 10
+        self.game_time = self.initial_game_time
